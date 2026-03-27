@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hanoi Crossing</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- Left sidebar -->
+    <aside class="sidebar">
+      <h1>Hanoi Crossing</h1>
+
+      <div class="controls">
+        <label for="n-disks">Disks per player</label>
+        <input type="number" id="n-disks" value="3" min="1" max="6" />
+
+        <label for="max-turns">Max turns</label>
+        <input type="number" id="max-turns" value="1000" min="1" />
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" data-tab="replay">Replay</button>
+        <button class="tab" data-tab="random">Random</button>
+      </div>
+
+      <!-- Replay panel -->
+      <div class="tab-panel active" id="panel-replay">
+        <label for="moves-input">Moves</label>
+        <textarea id="moves-input" rows="14" spellcheck="false" placeholder="A LIFT 1a
+B SKIP
+A PLACE 3a"></textarea>
+        <button class="btn-run" id="btn-replay">Run Replay</button>
+      </div>
+
+      <!-- Random panel -->
+      <div class="tab-panel" id="panel-random">
+        <p>Both players make random legal moves each turn.</p>
+        <button class="btn-run" id="btn-random">Run Random Game</button>
+      </div>
+
+      <!-- Playback controls -->
+      <div class="playback" id="playback" style="display:none;">
+        <div class="playback-info">
+          <span id="turn-display">Turn 0</span>
+          <span id="status-display"></span>
+        </div>
+        <input type="range" id="speed-slider" min="50" max="1000" value="400" />
+        <label for="speed-slider" class="speed-label">Speed</label>
+        <div class="playback-buttons">
+          <button id="btn-pause">Pause</button>
+          <button id="btn-reset">Reset</button>
+        </div>
+      </div>
+
+      <!-- Error display -->
+      <div class="error" id="error" style="display:none;"></div>
+
+      <!-- Move history log -->
+      <div class="history-container" id="history-container" style="display:none;">
+        <h3>Move Log</h3>
+        <div class="history-log" id="history-log"></div>
+      </div>
+    </aside>
+
+    <!-- Main board area -->
+    <main class="board">
+      <!-- Player A label -->
+      <div class="player-label label-a">Player A</div>
+
+      <!-- Row 1: Player A poles -->
+      <div class="pole-cell cell-1a">
+        <div class="pole-label">1a <span class="pole-role">(start)</span></div>
+        <div class="pole" id="pole-1a">
+          <div class="pole-rod"></div>
+          <div class="pole-base"></div>
+          <div class="disk-stack" id="stack-1a"></div>
+        </div>
+        <div class="hand-zone" id="hand-A" style="display:none;">
+          <div class="hand-label">A's hand</div>
+          <div class="hand-disk" id="hand-disk-A"></div>
+        </div>
+      </div>
+
+      <div class="pole-cell cell-3a">
+        <div class="pole-label">3a <span class="pole-role">(goal)</span></div>
+        <div class="pole" id="pole-3a">
+          <div class="pole-rod"></div>
+          <div class="pole-base"></div>
+          <div class="disk-stack" id="stack-3a"></div>
+        </div>
+      </div>
+
+      <!-- Shared pole: spans both rows -->
+      <div class="pole-cell cell-shared">
+        <div class="pole-label">2 <span class="pole-role">(shared)</span></div>
+        <div class="pole pole-tall" id="pole-2">
+          <div class="pole-rod"></div>
+          <div class="pole-base"></div>
+          <div class="disk-stack" id="stack-2"></div>
+        </div>
+      </div>
+
+      <!-- Player B label -->
+      <div class="player-label label-b">Player B</div>
+
+      <!-- Row 2: Player B poles -->
+      <div class="pole-cell cell-1b">
+        <div class="pole-label">1b <span class="pole-role">(start)</span></div>
+        <div class="pole" id="pole-1b">
+          <div class="pole-rod"></div>
+          <div class="pole-base"></div>
+          <div class="disk-stack" id="stack-1b"></div>
+        </div>
+        <div class="hand-zone" id="hand-B" style="display:none;">
+          <div class="hand-label">B's hand</div>
+          <div class="hand-disk" id="hand-disk-B"></div>
+        </div>
+      </div>
+
+      <div class="pole-cell cell-3b">
+        <div class="pole-label">3b <span class="pole-role">(goal)</span></div>
+        <div class="pole" id="pole-3b">
+          <div class="pole-rod"></div>
+          <div class="pole-base"></div>
+          <div class="disk-stack" id="stack-3b"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

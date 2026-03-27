@@ -1,0 +1,11 @@
+# Hanoi Crossing — 1 disk, Player A wins
+# Both players race; A wins by going first.
+#
+# Initial state:
+#   1a: [A-D1]   2: []   3a: []
+#   1b: [B-D1]   2: []   3b: []
+
+A LIFT 1a
+B LIFT 1b
+A PLACE 3a
+# A wins: 3a has [A-D1], hand empty

@@ -1,0 +1,456 @@
+/* ---------------------------------------------------------------------------
+   Reset & base
+   --------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: #0f1117;
+  color: #e2e4e9;
+  min-height: 100vh;
+}
+
+/* ---------------------------------------------------------------------------
+   App layout: sidebar + board
+   --------------------------------------------------------------------------- */
+
+.app {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ---------------------------------------------------------------------------
+   Sidebar
+   --------------------------------------------------------------------------- */
+
+.sidebar {
+  width: 280px;
+  min-width: 280px;
+  background: #181a20;
+  border-right: 1px solid #2a2d35;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+.sidebar h1 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.controls label {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.controls input[type="number"] {
+  background: #1e2028;
+  border: 1px solid #2a2d35;
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: #e2e4e9;
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: #1e2028;
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.tab {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #888;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab.active {
+  background: #2a6fff;
+  color: #fff;
+}
+
+.tab:hover:not(.active) {
+  color: #ccc;
+}
+
+/* Tab panels */
+.tab-panel {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tab-panel.active {
+  display: flex;
+}
+
+.tab-panel label {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tab-panel textarea {
+  background: #1e2028;
+  border: 1px solid #2a2d35;
+  border-radius: 6px;
+  padding: 10px;
+  color: #e2e4e9;
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 0.8rem;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.tab-panel p {
+  font-size: 0.85rem;
+  color: #999;
+  line-height: 1.5;
+}
+
+/* Run buttons */
+.btn-run {
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #2a6fff;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-run:hover {
+  background: #1b5de0;
+}
+
+.btn-run:disabled {
+  background: #333;
+  color: #666;
+  cursor: not-allowed;
+}
+
+/* Playback controls */
+.playback {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: #1e2028;
+  border-radius: 8px;
+}
+
+.playback-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+
+#turn-display {
+  font-weight: 600;
+  color: #fff;
+}
+
+#status-display {
+  color: #2a6fff;
+  font-weight: 600;
+}
+
+.speed-label {
+  font-size: 0.7rem;
+  color: #666;
+  text-align: right;
+}
+
+#speed-slider {
+  width: 100%;
+  accent-color: #2a6fff;
+}
+
+.playback-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.playback-buttons button {
+  flex: 1;
+  padding: 6px;
+  border: 1px solid #2a2d35;
+  border-radius: 6px;
+  background: #1e2028;
+  color: #ccc;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.playback-buttons button:hover {
+  background: #2a2d35;
+  color: #fff;
+}
+
+/* Error */
+.error {
+  padding: 10px;
+  background: #3a1a1a;
+  border: 1px solid #6b2a2a;
+  border-radius: 6px;
+  color: #ff6b6b;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+/* Move history */
+.history-container {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history-container h3 {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.history-log {
+  flex: 1;
+  overflow-y: auto;
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 0.72rem;
+  line-height: 1.6;
+  color: #888;
+  max-height: 200px;
+}
+
+.history-log .move-entry {
+  padding: 2px 0;
+}
+
+.history-log .move-entry.active {
+  color: #fff;
+  font-weight: 600;
+}
+
+.history-log .move-entry.player-a {
+  border-left: 2px solid #ff6b6b;
+  padding-left: 8px;
+}
+
+.history-log .move-entry.player-b {
+  border-left: 2px solid #4ecdc4;
+  padding-left: 8px;
+}
+
+/* ---------------------------------------------------------------------------
+   Board — CSS Grid layout
+   --------------------------------------------------------------------------- */
+
+.board {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: auto 1fr auto 1fr;
+  gap: 0;
+  padding: 32px;
+  align-content: center;
+  min-height: 100vh;
+}
+
+/* Player labels span full row */
+.player-label {
+  grid-column: 1 / -1;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 16px;
+}
+
+.label-a {
+  grid-row: 1;
+  color: #ff6b6b;
+}
+
+.label-b {
+  grid-row: 3;
+  color: #4ecdc4;
+}
+
+/* Pole cells */
+.pole-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+}
+
+.cell-1a { grid-row: 2; grid-column: 1; }
+.cell-3a { grid-row: 2; grid-column: 3; }
+.cell-1b { grid-row: 4; grid-column: 1; }
+.cell-3b { grid-row: 4; grid-column: 3; }
+
+/* Shared pole spans rows 2 and 4 */
+.cell-shared {
+  grid-row: 2 / 5;
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+/* ---------------------------------------------------------------------------
+   Pole rendering
+   --------------------------------------------------------------------------- */
+
+.pole-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #aaa;
+  margin-bottom: 8px;
+}
+
+.pole-role {
+  font-weight: 400;
+  color: #666;
+}
+
+.pole {
+  position: relative;
+  width: 160px;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.pole-tall {
+  height: 320px;
+}
+
+.pole-rod {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: calc(100% - 16px);
+  background: #3a3d45;
+  border-radius: 3px;
+}
+
+.pole-base {
+  width: 120px;
+  height: 8px;
+  background: #3a3d45;
+  border-radius: 4px;
+  z-index: 1;
+}
+
+/* Disk stack — positioned from bottom */
+.disk-stack {
+  position: absolute;
+  bottom: 12px;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 2px;
+  z-index: 2;
+}
+
+/* ---------------------------------------------------------------------------
+   Disks
+   --------------------------------------------------------------------------- */
+
+.disk {
+  height: 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.6);
+  transition: all 0.3s ease;
+}
+
+/* Player A disks — warm palette */
+.disk.owner-A.size-1 { width:  40px; background: #ff6b6b; }
+.disk.owner-A.size-2 { width:  56px; background: #ee5a24; }
+.disk.owner-A.size-3 { width:  72px; background: #f0932b; }
+.disk.owner-A.size-4 { width:  88px; background: #ffbe76; }
+.disk.owner-A.size-5 { width: 104px; background: #f9ca24; }
+.disk.owner-A.size-6 { width: 120px; background: #ffd93d; }
+
+/* Player B disks — cool palette */
+.disk.owner-B.size-1 { width:  40px; background: #4ecdc4; }
+.disk.owner-B.size-2 { width:  56px; background: #22a6b3; }
+.disk.owner-B.size-3 { width:  72px; background: #7c5cbf; }
+.disk.owner-B.size-4 { width:  88px; background: #686de0; }
+.disk.owner-B.size-5 { width: 104px; background: #4834d4; }
+.disk.owner-B.size-6 { width: 120px; background: #30336b; }
+
+/* ---------------------------------------------------------------------------
+   Hand zone
+   --------------------------------------------------------------------------- */
+
+.hand-zone {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.hand-label {
+  font-size: 0.7rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.hand-disk {
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

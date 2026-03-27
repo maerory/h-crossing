@@ -1,0 +1,50 @@
+# Hanoi Crossing — 2 disks, shared pole blocking
+# Demonstrates the core blocking mechanic on pole 2.
+#
+# Initial state:
+#   1a: [A-D2, A-D1]   2: []   3a: []
+#   1b: [B-D2, B-D1]   2: []   3b: []
+#
+# A solves using standard Hanoi, B attempts to block via pole 2.
+# A still wins by working around the block.
+
+# --- A starts the standard Hanoi approach: small disk to pole 2 ---
+A LIFT 1a
+# State: A hand=A-D1 | 1a:[A-D2] 2:[] 3a:[]
+
+B SKIP
+
+A PLACE 2
+# State: 1a:[A-D2] 2:[A-D1] 3a:[]
+
+# --- B begins moving and sets up a block ---
+B LIFT 1b
+# State: B hand=B-D1 | 1b:[B-D2]
+
+# --- A moves the large disk to the goal ---
+A LIFT 1a
+# State: A hand=A-D2 | 1a:[] 2:[A-D1]
+
+# --- B blocks! Places on pole 2 on top of A's disk ---
+B PLACE 2
+# State: 2:[A-D1, B-D1] — A cannot lift from pole 2 now
+
+# --- A can still place the large disk on the goal ---
+A PLACE 3a
+# State: 3a:[A-D2] 2:[A-D1, B-D1]
+
+# --- B unblocks by taking their disk back ---
+B LIFT 2
+# State: B hand=B-D1 | 2:[A-D1]
+
+# --- A recovers the small disk ---
+A LIFT 2
+# State: A hand=A-D1 | 2:[]
+
+# --- B continues their own solve ---
+B PLACE 3b
+# State: 3b:[B-D1]
+
+# --- A completes the puzzle ---
+A PLACE 3a
+# State: 3a:[A-D2, A-D1] — A WINS!
