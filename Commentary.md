@@ -33,7 +33,11 @@ Correcting some game rules:
 - Player takes alternate turns with Player A going first -> Turn order can be arbitrary.
 - Illegal move stops the game -> Illegal move leads to SKIP, the game continues.
 
-Game Assumptions:
+Design Choices:
 - Game is a draw if within all turns, neither player has achieved the win condition.
-
+- For random mode, the game is simulated in the back-end, and then shown in the front-end.
+- To win the game, pole 2 has to be empty, meaning that the opponent can just sabotage the game by placing the disk onto pole 2.
+- You can lift the opponent's disk from your own pole (ie. Player A can lift even disks from pole 1a, 3a) -> This is in line with placing held disk on any visible pole.
+- Kept the code down to around 300 for (engine, main, models)
+- Players take alternating turns for the random mode.
 

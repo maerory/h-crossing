@@ -118,7 +118,7 @@ def get_legal_moves(state: GameState, player: Player) -> list[Move]:
     else:
         for pole_id in ps.poles:
             stack = state.poles[pole_id]
-            if not stack or stack[-1].size >= ps.hand.size:
+            if not stack or stack[-1].size > ps.hand.size:
                 moves.append(Move(player=player, action=Action.PLACE, pole_id=pole_id))
 
     return moves
