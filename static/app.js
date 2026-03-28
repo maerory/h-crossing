@@ -76,11 +76,13 @@ async function fetchRandom() {
 function initBoardState(nDisks) {
   const poles = { "1a": [], "2": [], "3a": [], "1b": [], "3b": [] };
 
-  for (let s = nDisks; s >= 1; s--) {
-    poles["1a"].push({ size: s, owner: "A" });
+  // Player A: odd sizes (largest first), e.g. n=3 → [5, 3, 1]
+  for (let i = 0; i < nDisks; i++) {
+    poles["1a"].push({ size: 2 * nDisks - 1 - 2 * i, owner: "A" });
   }
-  for (let s = nDisks; s >= 1; s--) {
-    poles["1b"].push({ size: s, owner: "B" });
+  // Player B: even sizes (largest first), e.g. n=3 → [6, 4, 2]
+  for (let i = 0; i < nDisks; i++) {
+    poles["1b"].push({ size: 2 * nDisks - 2 * i, owner: "B" });
   }
 
   return {
@@ -91,6 +93,9 @@ function initBoardState(nDisks) {
 
 function applyStep(record) {
   const { player, action, pole_id: pid } = record;
+
+  // Illegal moves are no-ops — don't change board state
+  if (!record.valid) return;
 
   if (action === "LIFT") {
     boardState.hands[player] = boardState.poles[pid].pop();
@@ -151,7 +156,14 @@ function renderHistory() {
     if (i === stepIndex) div.classList.add("active");
 
     const poleStr = r.pole_id ? ` ${r.pole_id}` : "";
-    div.textContent = `T${r.turn} ${r.player}: ${r.action}${poleStr}`;
+    const label = `T${r.turn} ${r.player}: ${r.action}${poleStr}`;
+
+    if (!r.valid) {
+      div.classList.add("illegal");
+      div.textContent = `${label} ✗ ${r.reason}`;
+    } else {
+      div.textContent = label;
+    }
     log.appendChild(div);
   }
 

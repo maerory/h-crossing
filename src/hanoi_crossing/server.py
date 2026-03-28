@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from hanoi_crossing.engine import IllegalMoveError, run_game, run_game_random
+from hanoi_crossing.engine import run_game, run_game_random
 from hanoi_crossing.main import parse_moves
 from hanoi_crossing.models import Disk, GameResult, GameState, MoveRecord, Player
 
@@ -133,12 +133,10 @@ def api_replay(req: ReplayRequest):
     try:
         lines = req.moves.strip().splitlines()
         moves = parse_moves(lines)
-        result = run_game(moves, n_disks=req.n_disks, max_turns=req.max_turns)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except IllegalMoveError as e:
-        raise HTTPException(status_code=400, detail=f"Illegal move: {e}")
 
+    result = run_game(moves, n_disks=req.n_disks, max_turns=req.max_turns)
     return serialize_result(result)
 
 

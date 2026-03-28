@@ -278,6 +278,12 @@ body {
   padding-left: 8px;
 }
 
+.history-log .move-entry.illegal {
+  text-decoration: line-through;
+  color: #ff6b6b;
+  opacity: 0.6;
+}
+
 /* ---------------------------------------------------------------------------
    Board — CSS Grid layout
    --------------------------------------------------------------------------- */
@@ -413,21 +419,21 @@ body {
   transition: all 0.3s ease;
 }
 
-/* Player A disks — warm palette */
-.disk.owner-A.size-1 { width:  40px; background: #ff6b6b; }
-.disk.owner-A.size-2 { width:  56px; background: #ee5a24; }
-.disk.owner-A.size-3 { width:  72px; background: #f0932b; }
-.disk.owner-A.size-4 { width:  88px; background: #ffbe76; }
-.disk.owner-A.size-5 { width: 104px; background: #f9ca24; }
-.disk.owner-A.size-6 { width: 120px; background: #ffd93d; }
+/* Player A disks — warm palette (odd sizes) */
+.disk.owner-A.size-1  { width:  30px; background: #ff6b6b; }
+.disk.owner-A.size-3  { width:  50px; background: #ee5a24; }
+.disk.owner-A.size-5  { width:  70px; background: #f0932b; }
+.disk.owner-A.size-7  { width:  90px; background: #ffbe76; }
+.disk.owner-A.size-9  { width: 110px; background: #f9ca24; }
+.disk.owner-A.size-11 { width: 130px; background: #ffd93d; }
 
-/* Player B disks — cool palette */
-.disk.owner-B.size-1 { width:  40px; background: #4ecdc4; }
-.disk.owner-B.size-2 { width:  56px; background: #22a6b3; }
-.disk.owner-B.size-3 { width:  72px; background: #7c5cbf; }
-.disk.owner-B.size-4 { width:  88px; background: #686de0; }
-.disk.owner-B.size-5 { width: 104px; background: #4834d4; }
-.disk.owner-B.size-6 { width: 120px; background: #30336b; }
+/* Player B disks — cool palette (even sizes) */
+.disk.owner-B.size-2  { width:  40px; background: #4ecdc4; }
+.disk.owner-B.size-4  { width:  60px; background: #22a6b3; }
+.disk.owner-B.size-6  { width:  80px; background: #7c5cbf; }
+.disk.owner-B.size-8  { width: 100px; background: #686de0; }
+.disk.owner-B.size-10 { width: 120px; background: #4834d4; }
+.disk.owner-B.size-12 { width: 140px; background: #30336b; }
 
 /* ---------------------------------------------------------------------------
    Hand zone

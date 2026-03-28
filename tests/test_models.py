@@ -32,7 +32,6 @@ class TestDisk:
         assert str(Disk(size=2, owner=Player.B)) == "B-D2"
 
     def test_equality(self):
-        """Frozen dataclasses compare by value."""
         d1 = Disk(size=1, owner=Player.A)
         d2 = Disk(size=1, owner=Player.A)
         d3 = Disk(size=1, owner=Player.B)
@@ -42,37 +41,48 @@ class TestDisk:
 
 class TestMove:
     def test_skip_str(self):
-        assert str(Move(action=Action.SKIP)) == "Skip"
+        assert str(Move(player=Player.A, action=Action.SKIP)) == "A Skip"
 
     def test_lift_str(self):
-        assert str(Move(action=Action.LIFT, pole_id="1a")) == "Lift @ pole 1a"
+        assert str(Move(player=Player.A, action=Action.LIFT, pole_id="1a")) == "A Lift @ pole 1a"
 
     def test_place_str(self):
-        assert str(Move(action=Action.PLACE, pole_id="2")) == "Place @ pole 2"
+        assert str(Move(player=Player.B, action=Action.PLACE, pole_id="2")) == "B Place @ pole 2"
 
 
 class TestGameStateCreate:
-    def test_initial_poles(self):
+    def test_player_a_gets_odd_sizes(self):
         state = GameState.create(n_disks=3)
-        # P1 start pole: 3 disks, largest on bottom
-        assert len(state.poles["1a"]) == 3
-        assert state.poles["1a"][0].size == 3  # bottom
-        assert state.poles["1a"][-1].size == 1  # top
-        # P2 start pole
-        assert len(state.poles["1b"]) == 3
-        assert state.poles["1b"][0].size == 3
-        assert state.poles["1b"][-1].size == 1
-        # All other poles empty
-        assert state.poles["2"] == []
-        assert state.poles["3a"] == []
-        assert state.poles["3b"] == []
+        sizes = [d.size for d in state.poles["1a"]]
+        assert sizes == [5, 3, 1]  # bottom to top
 
-    def test_initial_disk_ownership(self):
+    def test_player_b_gets_even_sizes(self):
+        state = GameState.create(n_disks=3)
+        sizes = [d.size for d in state.poles["1b"]]
+        assert sizes == [6, 4, 2]  # bottom to top
+
+    def test_single_disk(self):
+        state = GameState.create(n_disks=1)
+        assert state.poles["1a"] == [Disk(size=1, owner=Player.A)]
+        assert state.poles["1b"] == [Disk(size=2, owner=Player.B)]
+
+    def test_two_disks(self):
+        state = GameState.create(n_disks=2)
+        assert [d.size for d in state.poles["1a"]] == [3, 1]
+        assert [d.size for d in state.poles["1b"]] == [4, 2]
+
+    def test_disk_ownership(self):
         state = GameState.create(n_disks=2)
         for d in state.poles["1a"]:
             assert d.owner == Player.A
         for d in state.poles["1b"]:
             assert d.owner == Player.B
+
+    def test_other_poles_empty(self):
+        state = GameState.create(n_disks=3)
+        assert state.poles["2"] == []
+        assert state.poles["3a"] == []
+        assert state.poles["3b"] == []
 
     def test_initial_hands_empty(self):
         state = GameState.create(n_disks=3)
@@ -107,8 +117,3 @@ class TestGameStateCreate:
     def test_custom_max_turns(self):
         state = GameState.create(n_disks=3, max_turns=500)
         assert state.max_turns == 500
-
-    def test_single_disk(self):
-        state = GameState.create(n_disks=1)
-        assert len(state.poles["1a"]) == 1
-        assert state.poles["1a"][0] == Disk(size=1, owner=Player.A)

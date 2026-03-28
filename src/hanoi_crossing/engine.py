@@ -24,8 +24,8 @@ class IllegalMoveError(Exception):
 # ---------------------------------------------------------------------------
 
 def validate_move(state: GameState, move: Move) -> None:
-    """Raise IllegalMoveError if the move is not legal for the active player."""
-    ps = state.players[state.active_player]
+    """Raise IllegalMoveError if the move is not legal for the given player."""
+    ps = state.players[move.player]
 
     if move.action == Action.SKIP:
         return
@@ -38,10 +38,6 @@ def validate_move(state: GameState, move: Move) -> None:
         stack = state.poles[move.pole_id]
         if not stack:
             raise IllegalMoveError(f"Cannot lift: pole {move.pole_id} is empty.")
-        if stack[-1].owner != ps.player:
-            raise IllegalMoveError(
-                f"Cannot lift: top disk on pole {move.pole_id} belongs to opponent."
-            )
         return
 
     if move.action == Action.PLACE:
@@ -63,7 +59,7 @@ def validate_move(state: GameState, move: Move) -> None:
 
 def apply_move(state: GameState, move: Move) -> None:
     """Apply a validated move, mutating the game state in place."""
-    ps = state.players[state.active_player]
+    ps = state.players[move.player]
 
     if move.action == Action.LIFT:
         ps.hand = state.poles[move.pole_id].pop()
@@ -79,60 +75,53 @@ def apply_move(state: GameState, move: Move) -> None:
 # Win condition
 # ---------------------------------------------------------------------------
 
-def check_win(state: GameState) -> Player | None:
-    """Check if the active player has won. Returns the winner or None."""
-    ps = state.players[state.active_player]
+def check_win(state: GameState, player: Player) -> bool:
+    """Check if the given player has won.
+
+    Win requires: hand is empty, and among the player's visible poles,
+    only their goal pole (pole 3) has disks on it. Poles 1 and the
+    shared pole must be empty.
+    """
+    ps = state.players[player]
 
     if ps.hand is not None:
-        return None
+        return False
 
-    goal_stack = state.poles[ps.goal_pole]
-    own_disks = [d for d in goal_stack if d.owner == ps.player]
+    # All visible poles except goal must be empty
+    for pole_id in ps.poles:
+        if pole_id == ps.goal_pole:
+            continue
+        if state.poles[pole_id]:
+            return False
 
-    if len(own_disks) != state.n_disks:
-        return None
+    # Goal pole must have at least one disk
+    if not state.poles[ps.goal_pole]:
+        return False
 
-    # Verify valid Hanoi order: bottom (index 0) is largest, top is smallest
-    for i in range(len(own_disks) - 1):
-        if own_disks[i].size >= own_disks[i + 1].size:
-            pass  # larger or equal below smaller — correct
-        else:
-            return None
-
-    return ps.player
+    return True
 
 
 # ---------------------------------------------------------------------------
 # Legal move enumeration
 # ---------------------------------------------------------------------------
 
-def get_legal_moves(state: GameState) -> list[Move]:
-    """Return all legal moves for the active player."""
-    moves: list[Move] = [Move(action=Action.SKIP)]
-    ps = state.players[state.active_player]
+def get_legal_moves(state: GameState, player: Player) -> list[Move]:
+    """Return all legal moves for the given player."""
+    moves: list[Move] = [Move(player=player, action=Action.SKIP)]
+    ps = state.players[player]
 
     if ps.hand is None:
         for pole_id in ps.poles:
             stack = state.poles[pole_id]
-            if stack and stack[-1].owner == ps.player:
-                moves.append(Move(action=Action.LIFT, pole_id=pole_id))
+            if stack:
+                moves.append(Move(player=player, action=Action.LIFT, pole_id=pole_id))
     else:
         for pole_id in ps.poles:
             stack = state.poles[pole_id]
             if not stack or stack[-1].size >= ps.hand.size:
-                moves.append(Move(action=Action.PLACE, pole_id=pole_id))
+                moves.append(Move(player=player, action=Action.PLACE, pole_id=pole_id))
 
     return moves
-
-
-# ---------------------------------------------------------------------------
-# Turn management
-# ---------------------------------------------------------------------------
-
-def advance_turn(state: GameState) -> None:
-    """Switch active player and increment turn counter."""
-    state.active_player = state.active_player.opponent
-    state.turn += 1
 
 
 # ---------------------------------------------------------------------------
@@ -142,47 +131,46 @@ def advance_turn(state: GameState) -> None:
 def run_game(moves: list[Move], n_disks: int, max_turns: int = 1000) -> GameResult:
     """Execute a pre-recorded sequence of moves.
 
-    Moves alternate between Player A and Player B, starting with A.
-    Raises IllegalMoveError if any move is invalid.
+    Turn order is determined by the player field on each Move.
+    Illegal moves are logged as warnings and treated as skips.
     """
     state = GameState.create(n_disks=n_disks, max_turns=max_turns)
     history: list[MoveRecord] = []
 
-    for move in moves:
+    for i, move in enumerate(moves):
         if state.winner is not None or state.turn > state.max_turns:
             break
 
-        # Validate — raises on illegal move
+        state.active_player = move.player
+
         try:
             validate_move(state, move)
-        except IllegalMoveError as e:
+            apply_move(state, move)
             history.append(
                 MoveRecord(
                     turn=state.turn,
-                    player=state.active_player,
+                    player=move.player,
+                    move=move,
+                    valid=True,
+                )
+            )
+        except IllegalMoveError as e:
+            # Illegal move → no state change, turn is wasted
+            history.append(
+                MoveRecord(
+                    turn=state.turn,
+                    player=move.player,
                     move=move,
                     valid=False,
                     reason=str(e),
                 )
             )
-            raise
 
-        apply_move(state, move)
-        history.append(
-            MoveRecord(
-                turn=state.turn,
-                player=state.active_player,
-                move=move,
-                valid=True,
-            )
-        )
-
-        winner = check_win(state)
-        if winner is not None:
-            state.winner = winner
+        if check_win(state, move.player):
+            state.winner = move.player
             break
 
-        advance_turn(state)
+        state.turn += 1
 
     return GameResult(
         final_state=state,
@@ -192,31 +180,47 @@ def run_game(moves: list[Move], n_disks: int, max_turns: int = 1000) -> GameResu
     )
 
 
-def run_game_random(n_disks: int, max_turns: int = 1000) -> GameResult:
-    """Both players select uniformly at random from legal moves each turn."""
+def run_game_random(
+    n_disks: int,
+    max_turns: int = 1000,
+    turn_order: list[Player] | None = None,
+) -> GameResult:
+    """Run a game with random legal moves.
+
+    If turn_order is provided, it is cycled through. Otherwise defaults
+    to alternating A, B, A, B, ...
+    """
     state = GameState.create(n_disks=n_disks, max_turns=max_turns)
     history: list[MoveRecord] = []
 
+    if turn_order is None:
+        turn_order = [Player.A, Player.B]
+
+    turn_idx = 0
+
     while state.turn <= state.max_turns and state.winner is None:
-        legal = get_legal_moves(state)
+        player = turn_order[turn_idx % len(turn_order)]
+        state.active_player = player
+
+        legal = get_legal_moves(state, player)
         move = random.choice(legal)
 
         apply_move(state, move)
         history.append(
             MoveRecord(
                 turn=state.turn,
-                player=state.active_player,
+                player=player,
                 move=move,
                 valid=True,
             )
         )
 
-        winner = check_win(state)
-        if winner is not None:
-            state.winner = winner
+        if check_win(state, player):
+            state.winner = player
             break
 
-        advance_turn(state)
+        state.turn += 1
+        turn_idx += 1
 
     return GameResult(
         final_state=state,

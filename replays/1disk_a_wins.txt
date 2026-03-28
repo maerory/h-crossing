@@ -1,9 +1,9 @@
 # Hanoi Crossing — 1 disk, Player A wins
-# Both players race; A wins by going first.
+# A has disk 1 (odd), B has disk 2 (even)
 #
 # Initial state:
 #   1a: [A-D1]   2: []   3a: []
-#   1b: [B-D1]   2: []   3b: []
+#   1b: [B-D2]   2: []   3b: []
 
 A LIFT 1a
 B LIFT 1b

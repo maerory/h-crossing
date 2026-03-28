@@ -32,13 +32,15 @@ class Disk:
 
 @dataclass
 class Move:
+    player: Player
     action: Action
     pole_id: str | None = None
 
     def __str__(self) -> str:
+        prefix = f"{self.player.value}"
         if self.action == Action.SKIP:
-            return "Skip"
-        return f"{self.action.value.capitalize()} @ pole {self.pole_id}"
+            return f"{prefix} Skip"
+        return f"{prefix} {self.action.value.capitalize()} @ pole {self.pole_id}"
 
 
 @dataclass
@@ -85,11 +87,15 @@ class GameState:
     def create(cls, n_disks: int, max_turns: int = 1000) -> GameState:
         """Factory method to create the initial game state.
 
-        Disks are stacked largest (bottom) to smallest (top) on each
-        player's start pole. All other poles begin empty.
+        Player A gets N disks of odd sizes (1, 3, 5, ...),
+        Player B gets N disks of even sizes (2, 4, 6, ...).
+        Disks are stacked largest (bottom) to smallest (top).
         """
-        a_disks = [Disk(size=s, owner=Player.A) for s in range(n_disks, 0, -1)]
-        b_disks = [Disk(size=s, owner=Player.B) for s in range(n_disks, 0, -1)]
+        a_sizes = list(range(2 * n_disks - 1, 0, -2))  # e.g. n=3 → [5, 3, 1]
+        b_sizes = list(range(2 * n_disks, 0, -2))       # e.g. n=3 → [6, 4, 2]
+
+        a_disks = [Disk(size=s, owner=Player.A) for s in a_sizes]
+        b_disks = [Disk(size=s, owner=Player.B) for s in b_sizes]
 
         poles = {
             "1a": a_disks,
