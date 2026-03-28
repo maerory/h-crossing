@@ -12,10 +12,10 @@ Two players (A and B) each have N disks and three poles. The twist: both players
 │ Pole 1a │     │ Pole 3a │
 │ (start) │     │  (goal) │
 └─────────┘     └─────────┘
-        ┌─────────┐
-        │ Pole 2  │
-        │(shared) │
-        └─────────┘
+          ┌─────────┐
+          │ Pole 2  │
+          │(shared) │
+          └─────────┘
 ┌─────────┐     ┌─────────┐
 │ Pole 1b │     │ Pole 3b │
 │ (start) │     │  (goal) │
@@ -23,21 +23,44 @@ Two players (A and B) each have N disks and three poles. The twist: both players
      Player B
 ```
 
-Player A moves all disks from **1a → 3a**. Player B moves all disks from **1b → 3b**. First to complete a valid Hanoi stack on their goal pole wins.
+Player A moves all disks from **1a → 3a**. Player B moves all disks from **1b → 3b**. First to clear all visible poles except their goal pole wins.
+
+### Disks
+
+Player A gets N disks of **odd** sizes (1, 3, 5, ...). Player B gets N disks of **even** sizes (2, 4, 6, ...). All disks across both players are distinct sizes.
 
 ### Rules
 
-Players alternate turns starting with Player A. Each turn is exactly one action:
+Turn order is arbitrary — provided externally as a sequence that says which player acts on each step. The engine does not assume alternation. Each turn is exactly one action:
 
-- **Lift** — Pick up the top disk from one of your poles into your hand. You can only lift your own disks.
-- **Place** — Put the held disk onto one of your poles. You can place on an empty pole or on top of a disk with equal or greater size, regardless of who owns that disk.
+- **Lift** — Pick up the top disk from any of your visible poles into your hand. You can lift any top disk regardless of who owns it.
+- **Place** — Put the held disk onto any of your visible poles. You can place on an empty pole or on top of a strictly larger disk. You may place an opponent's disk onto your own poles, but you cannot place any disk onto the opponent's exclusive poles.
 - **Skip** — Do nothing.
 
-Each player can hold at most one disk at a time. A player wins on their own turn when their hand is empty and all N disks are correctly stacked (largest on bottom, smallest on top) on their goal pole.
+Each player can hold at most one disk at a time. An illegal action does not change the game state; the turn is wasted and the game continues.
+
+### Visibility
+
+Each player can only see and interact with their own poles:
+
+- **Player A** sees poles 1a, 2, 3a
+- **Player B** sees poles 1b, 2, 3b
+
+Neither player can see or interact with the other's exclusive poles. The shared pole (pole 2) is visible to both.
+
+### Win Condition
+
+A player wins when their hand is empty and, among their visible poles, **only their goal pole has disks on it**. This means:
+
+- Their start pole must be empty.
+- The shared pole must be completely empty (even opponent disks block your win).
+- Their goal pole must have at least one disk.
+
+Opponent disks on your goal pole are fine — only the emptiness of poles 1 and 2 matters. Hanoi ordering on the goal pole is guaranteed by the placement rule.
 
 ### The Shared Pole
 
-Pole 2 is where the game gets interesting. Both players can lift from and place onto it, but you can only lift a disk if it belongs to you **and** it's the top disk. This means placing your disk on top of an opponent's disk on the shared pole effectively blocks them from recovering it until you move yours away.
+Pole 2 is where the game gets interesting. Both players can lift from and place onto it. You can grab an opponent's disk from pole 2 and dump it on your own exclusive pole to deny them access. Conversely, any disk left on pole 2 — yours or your opponent's — prevents both players from winning.
 
 ## Setup
 
@@ -62,7 +85,7 @@ B SKIP
 A PLACE 3a
 ```
 
-Lines starting with `#` and blank lines are ignored.
+Lines starting with `#` and blank lines are ignored. Turn order is determined by the player field on each line — no alternation required.
 
 Run it:
 
@@ -114,7 +137,7 @@ Then open **http://localhost:8000** in your browser.
 
 The left sidebar has two tabs:
 
-**Replay** — Paste your moves into the text area and click **Run Replay**. The board will animate through each move automatically.
+**Replay** — Paste your moves into the text area and click **Run Replay**. The board will animate through each move automatically. Illegal moves appear crossed out in the move log.
 
 **Random** — Click **Run Random Game** to watch two players make random legal moves.
 
